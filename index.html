@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Consulta de CEP</title>
+    <style>
+     #spinner:not([hidden]) {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        }
+
+        #spinner::after {
+        content: "";
+        width: 80px;
+        height: 80px;
+        border: 2px solid #f3f3f3;
+        border-top: 3px solid #f25a41;
+        border-radius: 100%;
+        will-change: transform;
+        animation: spin 1s infinite linear;
+        }
+
+        @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+        }
+    </style>
+    
+    <script>
+       document.addEventListener("DOMContentLoaded", () => {
+              function buscaCep(cep){
+                //div que contem o spinner
+                const spinner = document.querySelector("#spinner");
+                //adiciona zeros a esquerda do cep
+                    cep=cep.toString().padStart(8,'0');
+                    //valida o cep somente com numeros
+                    let validacep = /^[0-9]{8}$/;
+                    if(validacep.test(cep)){
+                        console.log(`BUSCANDO CEP ${cep}`);
+                        //exibe o spinner 
+                        spinner.removeAttribute("hidden");
+                        //executa a chamada atraves do metodo fetch
+                        fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                                .then((response) => response.json())
+                                .then((json) => {
+                                    //oculta o spinner
+                                    spinner.setAttribute("hidden","");
+                                    if(json.erro){
+                                        alert("CEP Não Localizado!");
+                                    }
+                                    else{
+                                        //atribui a resposta aos inputs
+                                        console.log("Resposta:",json);
+                                        document.querySelector('#txtlog').value=json.logradouro;
+                                        document.querySelector('#txtbairro').value=json.bairro;
+                                        document.querySelector('#txtcidade').value=json.localidade;
+                                        document.querySelector('#txtestado').value=json.uf;
+                                    }
+                                })
+                            }
+                            else{
+                                alert("CEP Inválido.");
+                            }
+
+              }
+              let btnCons=document.querySelector("#btnConsultar");
+              btnCons.addEventListener("click",()=>{
+                let c=document.querySelector("#txtcep").value;
+                buscaCep(c);
+              })
+              
+       });
+       
+    </script>
+</head>
+<body>
+    <h1>Consulta de CEP</h1>
+   CEP:<input type="text" name="txtcep" id="txtcep">
+   <button type="button" name="btnConsultar" id="btnConsultar">Consultar</button>
+
+<br>
+<br>
+<br>
+<div hidden id="spinner"></div>
+<div id="resultado">
+    <label>Logradouro:</label><input type="text" name="txtlog" id="txtlog"><br>
+    <label>Bairro:</label><input type="text" name="txtbairro" id="txtbairro"><br>
+    <label>Cidade:</label><input type="text" name="txtcidade" id="txtcidade"><br>
+    <label>Estado:</label><input type="text" name="txtestado" id="txtestado"><br>
+</div>
+    <a href="pagina2.html">clique aqui</a>
+</body>
+
+</html>
